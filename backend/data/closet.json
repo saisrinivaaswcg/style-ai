@@ -6,8 +6,12 @@
     "color": "white",
     "pattern": "solid",
     "fabric": "cotton",
-    "occasion": ["casual"],
-    "season": ["summer"],
+    "occasion": [
+      "casual"
+    ],
+    "season": [
+      "summer"
+    ],
     "last_worn": "2026-07-10",
     "rejection_count": 0,
     "status": "active"
@@ -19,8 +23,12 @@
     "color": "blue",
     "pattern": "solid",
     "fabric": "denim",
-    "occasion": ["casual"],
-    "season": ["all"],
+    "occasion": [
+      "casual"
+    ],
+    "season": [
+      "all"
+    ],
     "last_worn": "2026-07-15",
     "rejection_count": 1,
     "status": "active"
@@ -32,10 +40,35 @@
     "color": "white",
     "pattern": "solid",
     "fabric": "leather",
-    "occasion": ["casual"],
-    "season": ["all"],
+    "occasion": [
+      "casual"
+    ],
+    "season": [
+      "all"
+    ],
     "last_worn": "2026-07-20",
     "rejection_count": 0,
     "status": "active"
+  },
+  {
+    "id": 4,
+    "name": "White Cotton T-Shirt",
+    "category": "top",
+    "color": "white",
+    "pattern": "solid",
+    "fabric": "cotton",
+    "occasion": [
+      "casual"
+    ],
+    "season": [
+      "summer",
+      "spring",
+      "autumn",
+      "all"
+    ],
+    "last_worn": "2026-07-30",
+    "rejection_count": 0,
+    "status": "active",
+    "image_path": "uploads/0a49dbe5-e840-4d8d-8407-7fbee81bf0fd.jpg"
   }
 ]
