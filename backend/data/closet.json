@@ -1,0 +1,41 @@
+[
+  {
+    "id": 1,
+    "name": "White T-Shirt",
+    "category": "top",
+    "color": "white",
+    "pattern": "solid",
+    "fabric": "cotton",
+    "occasion": ["casual"],
+    "season": ["summer"],
+    "last_worn": "2026-07-10",
+    "rejection_count": 0,
+    "status": "active"
+  },
+  {
+    "id": 2,
+    "name": "Blue Jeans",
+    "category": "bottom",
+    "color": "blue",
+    "pattern": "solid",
+    "fabric": "denim",
+    "occasion": ["casual"],
+    "season": ["all"],
+    "last_worn": "2026-07-15",
+    "rejection_count": 1,
+    "status": "active"
+  },
+  {
+    "id": 3,
+    "name": "White Sneakers",
+    "category": "shoes",
+    "color": "white",
+    "pattern": "solid",
+    "fabric": "leather",
+    "occasion": ["casual"],
+    "season": ["all"],
+    "last_worn": "2026-07-20",
+    "rejection_count": 0,
+    "status": "active"
+  }
+]
