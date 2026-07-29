@@ -1,6 +1,8 @@
 import { useState } from "react";
 import inventory from "./data/inventory.json";
+import Exa from "exa-js";
 
+const exa = new Exa(import.meta.env.VITE_EXA_API_KEY);
 const UPCYCLING_THRESHOLD = 3;
 
 const colorMap = {
@@ -66,6 +68,33 @@ export default function App() {
     return JSON.parse(text.replace(/```json|```/g, "").trim());
   };
 
+  const searchOutfitImage = async (outfitName, items) => {
+  try {
+    const itemDescriptions = items
+      .map((i) => `${i.color} ${i.name}`)
+      .join(" ");
+    const result = await exa.searchAndContents(
+      `fashion outfit ${itemDescriptions} style look site:pinterest.com OR site:lookbook.nu OR site:polyvore.com`,
+      { numResults: 1, useAutoprompt: true }
+    );
+    return result.results[0]?.url || null;
+  } catch (e) {
+    return null;
+  }
+};
+
+  const searchUpcyclingTutorial = async (itemName, transformation) => {
+    try {
+      const result = await exa.searchAndContents(
+        `how to upcycle ${itemName} into ${transformation} DIY tutorial`,
+        { numResults: 1, useAutoprompt: true }
+      );
+      return result.results[0]?.url || null;
+    } catch (e) {
+      return null;
+    }
+  };
+
   const getOutfits = async () => {
     setLoading(true); setError(null); setStage("outfits"); setSelectedItem(null);
     try {
@@ -86,12 +115,13 @@ Respond with exactly this JSON:
 {"outfits":[{"name":"string","item_ids":[1,2,3],"reason":"string"}]}
       `);
       const validIds = new Set(closet.map((i) => i.id));
-      data.outfits = (data.outfits || []).map((o) => ({
-        ...o,
-        items: (o.item_ids || [])
+      data.outfits = await Promise.all((data.outfits || []).map(async (o) => {
+        const items = (o.item_ids || [])
           .filter((id) => validIds.has(id))
           .map((id) => closet.find((i) => i.id === id))
-          .filter(Boolean),
+          .filter(Boolean);
+        const imageUrl = await searchOutfitImage(o.name, items);
+        return { ...o, items, imageUrl };
       }));
       setResult(data);
     } catch (e) {
@@ -146,6 +176,13 @@ Each idea must be something practical for daily life (tote bag, cushion cover, r
 Respond with exactly this JSON:
 {"upcycles":[{"name":"string","steps":"string","difficulty":"Easy/Medium/Hard","time":"string"}]}
       `);
+      const upcyclesWithTutorials = await Promise.all(
+        (data.upcycles || []).map(async (u) => {
+          const tutorialUrl = await searchUpcyclingTutorial(item.name, u.name);
+          return { ...u, tutorialUrl };
+        })
+      );
+      data.upcycles = upcyclesWithTutorials;
       setCloset((prev) =>
         prev.map((i) =>
           i.id === item.id ? { ...i, rejection_count: i.rejection_count + 1 } : i
@@ -220,6 +257,12 @@ Respond with exactly this JSON:
             <div key={i} style={{ background: "#fff", border: "1px solid #E8E8E8", borderRadius: 12, padding: 16, marginBottom: 12 }}>
               <div style={{ fontWeight: 700, marginBottom: 3 }}>{outfit.name}</div>
               <div style={{ fontSize: 12, color: "#888", marginBottom: 10 }}>{outfit.reason}</div>
+              {outfit.imageUrl && (
+                <a href={outfit.imageUrl} target="_blank" rel="noreferrer"
+                  style={{ display: "block", fontSize: 12, color: "#4A90D9", marginBottom: 10 }}>
+                  🖼 View outfit inspiration →
+                </a>
+              )}
               <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 12 }}>
                 {(outfit.items || []).map((item) => <ItemBadge key={item.id} item={item} />)}
               </div>
@@ -272,10 +315,16 @@ Respond with exactly this JSON:
             <div key={i} style={{ background: "#F1F8E9", border: "1px solid #C5E1A5", borderRadius: 12, padding: 16, marginBottom: 12 }}>
               <div style={{ fontWeight: 700, marginBottom: 4 }}>🌿 {u.name}</div>
               <div style={{ fontSize: 13, color: "#444", marginBottom: 10 }}>{u.steps}</div>
-              <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ display: "flex", gap: 8, marginBottom: u.tutorialUrl ? 10 : 0 }}>
                 <span style={{ fontSize: 11, background: "#fff", border: "1px solid #C5E1A5", borderRadius: 20, padding: "3px 10px" }}>⏱ {u.time}</span>
                 <span style={{ fontSize: 11, background: "#fff", border: "1px solid #C5E1A5", borderRadius: 20, padding: "3px 10px" }}>🔧 {u.difficulty}</span>
               </div>
+              {u.tutorialUrl && (
+                <a href={u.tutorialUrl} target="_blank" rel="noreferrer"
+                  style={{ fontSize: 12, color: "#4A90D9", display: "block" }}>
+                  📖 View tutorial →
+                </a>
+              )}
             </div>
           ))}
           <div style={{ background: "#FFF8E1", border: "1px solid #FFD54F", borderRadius: 10, padding: "12px 14px", fontSize: 13, marginBottom: 10 }}>
