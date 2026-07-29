@@ -99,7 +99,7 @@ def apply_transform(img):
 
 
 
-def generate_mask(input_image, net, palette, device = 'cpu'):
+def generate_mask(input_image, net, palette, device='cpu', base_name='output'):
 
     #img = Image.open(input_image).convert('RGB')
     img = input_image
@@ -134,13 +134,13 @@ def generate_mask(input_image, net, palette, device = 'cpu'):
         alpha_mask = alpha_mask[0]  # Selecting the first channel to make it 2D
         alpha_mask_img = Image.fromarray(alpha_mask, mode='L')
         alpha_mask_img = alpha_mask_img.resize(img_size, Image.BICUBIC)
-        alpha_mask_img.save(os.path.join(alpha_out_dir, f'{cls}.png'))
+        alpha_mask_img.save(os.path.join(alpha_out_dir, f'{base_name}_{cls}.png'))
 
     # Save final cloth segmentations
     cloth_seg = Image.fromarray(output_arr[0].astype(np.uint8), mode='P')
     cloth_seg.putpalette(palette)
     cloth_seg = cloth_seg.resize(img_size, Image.BICUBIC)
-    cloth_seg.save(os.path.join(cloth_seg_out_dir, 'final_seg.png'))
+    cloth_seg.save(os.path.join(cloth_seg_out_dir, f'{base_name}_seg.png'))
     return cloth_seg
 
 
@@ -175,8 +175,9 @@ def main(args):
     palette = get_palette(4)
 
     img = Image.open(args.image).convert('RGB')
+    base_name = os.path.splitext(os.path.basename(args.image))[0]
 
-    cloth_seg = generate_mask(img, net=model, palette=palette, device=device)
+    cloth_seg = generate_mask(img, net=model, palette=palette, device=device, base_name=base_name)
 
 
 
