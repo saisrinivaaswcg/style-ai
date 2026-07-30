@@ -1,6 +1,6 @@
-import { useState } from "react";
-import inventory from "./data/inventory.json";
+import { useState, useEffect } from "react";
 import Exa from "exa-js";
+const BACKEND_URL = "http://localhost:8000";
 
 const exa = new Exa(import.meta.env.VITE_EXA_API_KEY);
 const UPCYCLING_THRESHOLD = 3;
@@ -39,7 +39,7 @@ function ItemBadge({ item }) {
 }
 
 export default function App() {
-  const [closet, setCloset] = useState(inventory);
+  const [closet, setCloset] = useState([]);
   const [occasion, setOccasion] = useState("casual");
   const [season, setSeason] = useState("summer");
   const [loading, setLoading] = useState(false);
@@ -47,6 +47,12 @@ export default function App() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+  fetch(`${BACKEND_URL}/inventory`)
+    .then(res => res.json())
+    .then(data => setCloset(data));
+}, []);
 
   const callAI = async (prompt) => {
     const res = await fetch("https://api.openai.com/v1/chat/completions", {
