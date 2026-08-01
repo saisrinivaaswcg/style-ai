@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Exa from "exa-js";
+import PaperDoll from "./PaperDoll";
 
 const BACKEND_URL = "http://localhost:8000";
 const exa = new Exa(import.meta.env.VITE_EXA_API_KEY);
@@ -26,14 +27,14 @@ function ItemRow({ item }) {
   return (
     <div style={{
       display: "flex", alignItems: "center", gap: 8,
-      padding: "7px 10px", borderRadius: 8, fontSize: 13,
-      background: needsUpcycling ? "#FFF8E1" : "#F7F7F7",
-      border: `0.5px solid ${needsUpcycling ? "#FFD54F" : "#E8E8E8"}`,
+      padding: "8px 12px", borderRadius: 8, fontSize: 13,
+      background: needsUpcycling ? "#FFFBF0" : "#F9F9F9",
+      border: `1px solid ${needsUpcycling ? "#FFE082" : "#EFEFEF"}`,
     }}>
       <ColorDot color={item.color} />
-      <span style={{ flex: 1, fontWeight: 500 }}>{item.name}</span>
-      <span style={{ fontSize: 10, color: "#999", textTransform: "uppercase", letterSpacing: "0.5px" }}>{item.category}</span>
-      {needsUpcycling && <span style={{ fontSize: 12, color: "#F59E0B" }}>♻</span>}
+      <span style={{ flex: 1, fontWeight: 500, color: "#111" }}>{item.name}</span>
+      <span style={{ fontSize: 10, color: "#BBB", textTransform: "uppercase", letterSpacing: "0.6px" }}>{item.category}</span>
+      {needsUpcycling && <span style={{ fontSize: 11, color: "#D4900A" }}>♻</span>}
     </div>
   );
 }
@@ -50,6 +51,7 @@ export default function App() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(null);
+  const [paperDollOutfit, setPaperDollOutfit] = useState(null);
 
   useEffect(() => {
     fetch(`${BACKEND_URL}/inventory`)
@@ -185,77 +187,43 @@ Respond with exactly: {"upcycles":[{"name":"string","steps":"string","difficulty
   };
 
   const reset = () => { setStage("idle"); setResult(null); setSelectedItem(null); setError(null); };
-
   const upcycleable = closet.filter(i => i.rejection_count >= UPCYCLING_THRESHOLD && i.status === "active");
 
-  const s = {
-    app: { maxWidth: 700, margin: "0 auto", fontFamily: "Inter, system-ui, sans-serif", color: "#1a1a1a", paddingBottom: 48 },
-    header: { padding: "28px 20px 20px", borderBottom: "0.5px solid #E8E8E8" },
-    headerTop: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 },
-    logo: { display: "flex", alignItems: "center", gap: 10 },
-    logoIcon: { width: 32, height: 32, background: "#1a1a1a", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 },
-    logoName: { fontSize: 18, fontWeight: 600, letterSpacing: "-0.3px" },
-    tagline: { fontSize: 13, color: "#999", marginLeft: 42 },
-    addBtn: { display: "flex", alignItems: "center", gap: 6, padding: "7px 14px", border: "0.5px solid #D0D0D0", borderRadius: 8, background: "#fff", fontSize: 13, fontWeight: 500, cursor: "pointer" },
-    uploadPanel: { padding: "16px 20px", borderBottom: "0.5px solid #E8E8E8" },
-    uploadArea: { border: "1.5px dashed #D0D0D0", borderRadius: 12, padding: 24, textAlign: "center", cursor: "pointer", background: "#FAFAFA" },
-    controls: { padding: "14px 20px", display: "flex", gap: 10, alignItems: "flex-end", borderBottom: "0.5px solid #E8E8E8" },
-    field: { flex: 1 },
-    label: { display: "block", fontSize: 11, fontWeight: 600, color: "#999", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 5 },
-    select: { width: "100%", padding: "8px 10px", border: "0.5px solid #D0D0D0", borderRadius: 8, fontSize: 14, background: "#fff", cursor: "pointer" },
-    suggestBtn: { padding: "9px 20px", background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" },
-    content: { padding: 20 },
-    sectionLabel: { fontSize: 11, fontWeight: 600, color: "#999", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 12 },
-    card: { background: "#fff", border: "0.5px solid #E8E8E8", borderRadius: 12, padding: 16, marginBottom: 10 },
-    cardName: { fontSize: 15, fontWeight: 600, marginBottom: 3 },
-    cardReason: { fontSize: 12, color: "#888", marginBottom: 10, lineHeight: 1.5 },
-    itemsList: { display: "flex", flexDirection: "column", gap: 5, marginBottom: 12 },
-    actionRow: { display: "flex", gap: 8 },
-    actionBtn: { flex: 1, padding: "8px 0", background: "#F7F7F7", border: "0.5px solid #E0E0E0", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer" },
-    dangerBtn: { flex: 1, padding: "8px 0", background: "#FFF0F0", border: "0.5px solid #FFCDD2", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer", color: "#C62828" },
-    upcycleCard: { background: "#F1F8E9", border: "0.5px solid #C5E1A5", borderRadius: 12, padding: 14, marginBottom: 10 },
-    chip: { fontSize: 11, padding: "3px 9px", background: "#fff", border: "0.5px solid #E0E0E0", borderRadius: 20, color: "#888" },
-    donateBanner: { background: "#E3F2FD", border: "0.5px solid #90CAF9", borderRadius: 8, padding: "12px 14px", fontSize: 13, color: "#1565C0", marginTop: 10 },
-    backBtn: { width: "100%", padding: "9px 0", border: "0.5px solid #E0E0E0", borderRadius: 8, background: "transparent", fontSize: 13, color: "#888", cursor: "pointer", marginTop: 10 },
-    alert: { margin: "12px 20px", padding: "10px 14px", background: "#FFF8E1", border: "0.5px solid #FFD54F", borderRadius: 8, fontSize: 13, color: "#E65100" },
-    closetSection: { padding: "0 20px" },
-    divider: { height: "0.5px", background: "#E8E8E8", margin: "20px 0" },
-    loading: { textAlign: "center", padding: "40px 0", color: "#999", fontSize: 14 },
-    successToast: { background: "#E8F5E9", border: "0.5px solid #A5D6A7", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#2E7D32", marginBottom: 12 },
-  };
-
   return (
-    <div style={s.app}>
+    <div style={{ maxWidth: 680, margin: "0 auto", fontFamily: "'Inter', system-ui, sans-serif", color: "#111", paddingBottom: 64, background: "#FAFAFA", minHeight: "100vh" }}>
 
       {/* Header */}
-      <div style={s.header}>
-        <div style={s.headerTop}>
-          <div style={s.logo}>
-            <div style={s.logoIcon}>👗</div>
-            <span style={s.logoName}>StyleAI</span>
+      <div style={{ padding: "28px 24px 20px", borderBottom: "1px solid #EFEFEF", background: "#fff" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 36, height: 36, background: "#111", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>👗</div>
+            <span style={{ fontSize: 20, fontWeight: 600, letterSpacing: "-0.5px" }}>StyleAI</span>
           </div>
-          <button style={s.addBtn} onClick={() => setUploadOpen(o => !o)}>
+          <button onClick={() => setUploadOpen(o => !o)}
+            style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", border: "1px solid #E0E0E0", borderRadius: 8, background: "#fff", fontSize: 13, fontWeight: 500, cursor: "pointer", color: "#333" }}>
             📷 Add clothing
           </button>
         </div>
-        <p style={s.tagline}>Outfit ideas from clothes you already own</p>
+        <p style={{ fontSize: 13, color: "#AAA", marginLeft: 46 }}>Outfit ideas from clothes you already own</p>
       </div>
 
       {/* Upload panel */}
       {uploadOpen && (
-        <div style={s.uploadPanel}>
+        <div style={{ padding: "16px 24px", borderBottom: "1px solid #EFEFEF", background: "#fff" }}>
           {uploadSuccess && (
-            <div style={s.successToast}>✅ Added <strong>{uploadSuccess}</strong> to your closet</div>
+            <div style={{ background: "#F0FFF4", border: "1px solid #B2DFDB", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "#1B5E20", marginBottom: 12 }}>
+              ✅ Added <strong>{uploadSuccess}</strong> to your closet
+            </div>
           )}
           {uploading ? (
             <div style={{ textAlign: "center", padding: "20px 0", color: "#888", fontSize: 13 }}>
               🔍 Analysing your item with AI...
             </div>
           ) : (
-            <label style={s.uploadArea}>
+            <label style={{ display: "block", border: "1.5px dashed #DDD", borderRadius: 12, padding: "28px 24px", textAlign: "center", cursor: "pointer", background: "#FAFAFA" }}>
               <div style={{ fontSize: 28, marginBottom: 8 }}>📸</div>
-              <div style={{ fontSize: 13, color: "#666", marginBottom: 4 }}>Drop a clothing photo or tap to browse</div>
-              <div style={{ fontSize: 11, color: "#999" }}>Front or back — AI will identify the item</div>
+              <div style={{ fontSize: 13, color: "#555", marginBottom: 4, fontWeight: 500 }}>Drop a clothing photo or tap to browse</div>
+              <div style={{ fontSize: 11, color: "#AAA" }}>Front or back — AI will identify the item automatically</div>
               <input type="file" accept="image/*" style={{ display: "none" }} onChange={handleUpload} />
             </label>
           )}
@@ -264,40 +232,47 @@ Respond with exactly: {"upcycles":[{"name":"string","steps":"string","difficulty
 
       {/* Upcycle alert */}
       {upcycleable.length > 0 && (
-        <div style={s.alert}>
+        <div style={{ margin: "14px 24px 0", padding: "12px 16px", background: "#FFFBF0", border: "1px solid #FFE082", borderRadius: 10, fontSize: 13, color: "#7B5800" }}>
           ♻️ <strong>{upcycleable.length} item{upcycleable.length > 1 ? "s" : ""}</strong> ready to upcycle: {upcycleable.map(i => i.name).join(", ")}
         </div>
       )}
 
       {/* Controls */}
-      <div style={s.controls}>
-        <div style={s.field}>
-          <label style={s.label}>Occasion</label>
-          <select style={s.select} value={occasion} onChange={e => setOccasion(e.target.value)}>
+      <div style={{ padding: "16px 24px", display: "flex", gap: 10, alignItems: "flex-end", borderBottom: "1px solid #EFEFEF", background: "#fff", marginTop: upcycleable.length > 0 ? 14 : 0 }}>
+        <div style={{ flex: 1 }}>
+          <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#AAA", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 6 }}>Occasion</label>
+          <select value={occasion} onChange={e => setOccasion(e.target.value)}
+            style={{ width: "100%", padding: "9px 12px", border: "1px solid #E0E0E0", borderRadius: 8, fontSize: 14, background: "#fff", cursor: "pointer", color: "#111" }}>
             {["casual", "work", "formal", "workout"].map(o => (
               <option key={o} value={o}>{o[0].toUpperCase() + o.slice(1)}</option>
             ))}
           </select>
         </div>
-        <div style={s.field}>
-          <label style={s.label}>Season</label>
-          <select style={s.select} value={season} onChange={e => setSeason(e.target.value)}>
+        <div style={{ flex: 1 }}>
+          <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#AAA", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 6 }}>Season</label>
+          <select value={season} onChange={e => setSeason(e.target.value)}
+            style={{ width: "100%", padding: "9px 12px", border: "1px solid #E0E0E0", borderRadius: 8, fontSize: 14, background: "#fff", cursor: "pointer", color: "#111" }}>
             {["summer", "winter", "spring", "autumn"].map(s => (
               <option key={s} value={s}>{s[0].toUpperCase() + s.slice(1)}</option>
             ))}
           </select>
         </div>
-        <button style={{ ...s.suggestBtn, opacity: loading ? 0.5 : 1 }} onClick={getOutfits} disabled={loading}>
+        <button onClick={getOutfits} disabled={loading}
+          style={{ padding: "10px 22px", background: loading ? "#888" : "#111", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: loading ? "not-allowed" : "pointer", whiteSpace: "nowrap", letterSpacing: "-0.2px" }}>
           {loading && stage === "outfits" ? "Finding..." : "✨ Suggest outfits"}
         </button>
       </div>
 
       {/* Error */}
-      {error && <div style={{ ...s.alert, background: "#FFEBEE", borderColor: "#FFCDD2", color: "#C62828" }}>{error}</div>}
+      {error && (
+        <div style={{ margin: "14px 24px 0", padding: "12px 16px", background: "#FFF0F0", border: "1px solid #FFE0E0", borderRadius: 10, fontSize: 13, color: "#C62828" }}>
+          {error}
+        </div>
+      )}
 
       {/* Loading */}
       {loading && (
-        <div style={s.loading}>
+        <div style={{ textAlign: "center", padding: "48px 0", color: "#BBB", fontSize: 14 }}>
           {stage === "outfits" && "🔍 Finding the best outfits from your closet..."}
           {stage === "restyling" && "✨ Thinking of new ways to style this..."}
           {stage === "upcycling" && "♻️ Finding a new life for this item..."}
@@ -306,24 +281,36 @@ Respond with exactly: {"upcycles":[{"name":"string","steps":"string","difficulty
 
       {/* Outfit results */}
       {!loading && result && stage === "outfits" && (
-        <div style={s.content}>
-          <div style={s.sectionLabel}>Outfits for {occasion} · {season}</div>
+        <div style={{ padding: "20px 24px" }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: "#AAA", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 14 }}>
+            Outfits for {occasion} · {season}
+          </div>
           {(result.outfits || []).map((outfit, i) => (
-            <div key={i} style={s.card}>
-              <div style={s.cardName}>{outfit.name}</div>
-              <div style={s.cardReason}>{outfit.reason}</div>
+            <div key={i} style={{ background: "#fff", border: "1px solid #EFEFEF", borderRadius: 14, padding: "18px 18px 14px", marginBottom: 12, boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+              <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 4, letterSpacing: "-0.2px" }}>{outfit.name}</div>
+              <div style={{ fontSize: 13, color: "#888", marginBottom: 12, lineHeight: 1.6 }}>{outfit.reason}</div>
               {outfit.imageUrl && (
                 <a href={outfit.imageUrl} target="_blank" rel="noreferrer"
-                  style={{ display: "inline-block", fontSize: 12, color: "#4A90D9", marginBottom: 10 }}>
+                  style={{ display: "inline-flex", alignItems: "center", gap: 5, marginBottom: 12, padding: "6px 12px", background: "#F5F8FF", border: "1px solid #DBEAFE", borderRadius: 6, fontSize: 12, color: "#1D4ED8", fontWeight: 500, textDecoration: "none" }}>
                   🖼 View outfit inspiration →
                 </a>
               )}
-              <div style={s.itemsList}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 14 }}>
                 {(outfit.items || []).map(item => <ItemRow key={item.id} item={item} />)}
               </div>
-              <div style={s.actionRow}>
-                <button style={s.actionBtn} onClick={() => getRestyling(outfit.items?.[0])}>🔄 Restyle an item</button>
-                <button style={s.dangerBtn} onClick={reset}>✕ Not for me</button>
+              <button onClick={() => setPaperDollOutfit(outfit)}
+                style={{ width: "100%", padding: "9px 0", background: "#F5F0FF", border: "1px solid #E8D5FF", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#6B21A8", marginBottom: 8 }}>
+                👤 View on model
+              </button>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => getRestyling(outfit.items?.[0])}
+                  style={{ flex: 1, padding: "9px 0", background: "#F5F5F5", border: "1px solid #E8E8E8", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer", color: "#333" }}>
+                  🔄 Restyle an item
+                </button>
+                <button onClick={reset}
+                  style={{ flex: 1, padding: "9px 0", background: "#FFF5F5", border: "1px solid #FFE0E0", borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: "pointer", color: "#C62828" }}>
+                  ✕ Not for me
+                </button>
               </div>
             </div>
           ))}
@@ -332,63 +319,69 @@ Respond with exactly: {"upcycles":[{"name":"string","steps":"string","difficulty
 
       {/* Restyling results */}
       {!loading && result && stage === "restyling" && selectedItem && (
-        <div style={s.content}>
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 2 }}>New ways to style</div>
-            <div style={{ fontSize: 13, color: "#888" }}>Based on your <strong>{selectedItem.name}</strong></div>
+        <div style={{ padding: "20px 24px" }}>
+          <div style={{ marginBottom: 18 }}>
+            <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 3, letterSpacing: "-0.3px" }}>New ways to style</div>
+            <div style={{ fontSize: 13, color: "#888" }}>Based on your <strong style={{ color: "#555" }}>{selectedItem.name}</strong></div>
           </div>
           {(result.styles || []).map((style, i) => (
-            <div key={i} style={s.card}>
-              <div style={s.cardName}>{style.name}</div>
-              <div style={s.cardReason}>{style.description}</div>
-              <div style={s.itemsList}>
+            <div key={i} style={{ background: "#fff", border: "1px solid #EFEFEF", borderRadius: 14, padding: "18px 18px 14px", marginBottom: 12, boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+              <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{style.name}</div>
+              <div style={{ fontSize: 13, color: "#888", marginBottom: 12, lineHeight: 1.6 }}>{style.description}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                 {(style.items || []).map(item => <ItemRow key={item.id} item={item} />)}
               </div>
             </div>
           ))}
           <button onClick={() => getUpcycling(selectedItem)}
-            style={{ width: "100%", padding: "10px 0", background: "#E8F5E9", border: "0.5px solid #A5D6A7", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer", color: "#2E7D32", marginBottom: 8 }}>
+            style={{ width: "100%", padding: "11px 0", background: "#F0FDF4", border: "1px solid #BBF7D0", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", color: "#15803D", marginBottom: 8, letterSpacing: "-0.2px" }}>
             ♻️ Still not feeling it? Upcycle it
           </button>
-          <button style={s.backBtn} onClick={reset}>← Back to outfits</button>
+          <button onClick={reset}
+            style={{ width: "100%", padding: "10px 0", border: "1px solid #E8E8E8", borderRadius: 8, background: "transparent", fontSize: 13, color: "#999", cursor: "pointer" }}>
+            ← Back to outfits
+          </button>
         </div>
       )}
 
       {/* Upcycling results */}
       {!loading && result && stage === "upcycling" && selectedItem && (
-        <div style={s.content}>
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 2 }}>Upcycle your {selectedItem.name}</div>
+        <div style={{ padding: "20px 24px" }}>
+          <div style={{ marginBottom: 18 }}>
+            <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 3, letterSpacing: "-0.3px" }}>Upcycle your {selectedItem.name}</div>
             <div style={{ fontSize: 13, color: "#888" }}>Give it a new life instead of throwing it away</div>
           </div>
           {(result.upcycles || []).map((u, i) => (
-            <div key={i} style={s.upcycleCard}>
-              <div style={{ fontWeight: 600, marginBottom: 4, color: "#2E7D32" }}>🌿 {u.name}</div>
-              <div style={{ fontSize: 13, color: "#444", marginBottom: 10, lineHeight: 1.5 }}>{u.steps}</div>
-              <div style={{ display: "flex", gap: 6, marginBottom: u.tutorialUrl ? 8 : 0 }}>
-                <span style={s.chip}>⏱ {u.time}</span>
-                <span style={s.chip}>🔧 {u.difficulty}</span>
+            <div key={i} style={{ background: "#fff", border: "1px solid #E8F5E9", borderRadius: 14, padding: "16px 18px", marginBottom: 10, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+              <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 6, color: "#15803D" }}>🌿 {u.name}</div>
+              <div style={{ fontSize: 13, color: "#444", marginBottom: 12, lineHeight: 1.6 }}>{u.steps}</div>
+              <div style={{ display: "flex", gap: 6, marginBottom: 4 }}>
+                <span style={{ fontSize: 11, padding: "4px 10px", background: "#F5F5F5", border: "1px solid #ECECEC", borderRadius: 20, color: "#666" }}>⏱ {u.time}</span>
+                <span style={{ fontSize: 11, padding: "4px 10px", background: "#F5F5F5", border: "1px solid #ECECEC", borderRadius: 20, color: "#666" }}>🔧 {u.difficulty}</span>
               </div>
               {u.tutorialUrl && (
                 <a href={u.tutorialUrl} target="_blank" rel="noreferrer"
-                  style={{ fontSize: 12, color: "#4A90D9", display: "block" }}>
+                  style={{ display: "inline-flex", alignItems: "center", gap: 5, marginTop: 10, padding: "6px 12px", background: "#F0F7FF", border: "1px solid #BBDEFB", borderRadius: 6, fontSize: 12, color: "#1565C0", fontWeight: 500, textDecoration: "none" }}>
                   📖 View tutorial →
                 </a>
               )}
             </div>
           ))}
-          <div style={s.donateBanner}>
+          <div style={{ background: "#F8F9FF", border: "1px solid #E3E8FF", borderRadius: 10, padding: "14px 16px", fontSize: 13, color: "#3949AB", marginTop: 4, lineHeight: 1.6 }}>
             🤝 Still want to let it go? Consider <strong>donating</strong> to a local charity drive.
           </div>
-          <button style={s.backBtn} onClick={reset}>← Start over</button>
+          <button onClick={reset}
+            style={{ width: "100%", padding: "10px 0", border: "1px solid #E8E8E8", borderRadius: 8, background: "transparent", fontSize: 13, color: "#999", cursor: "pointer", marginTop: 10 }}>
+            ← Start over
+          </button>
         </div>
       )}
 
       {/* Closet */}
-      <div style={s.closetSection}>
-        <div style={s.divider} />
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-          <span style={s.sectionLabel}>Your closet · {closet.filter(i => i.status === "active").length} items</span>
+      <div style={{ padding: "0 24px" }}>
+        <div style={{ height: "1px", background: "#EFEFEF", margin: "24px 0" }} />
+        <div style={{ fontSize: 11, fontWeight: 600, color: "#AAA", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 12 }}>
+          Your closet · {closet.filter(i => i.status === "active").length} items
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           {closet.filter(i => i.status === "active").map(item => (
@@ -396,7 +389,7 @@ Respond with exactly: {"upcycles":[{"name":"string","steps":"string","difficulty
               <div style={{ flex: 1 }}><ItemRow item={item} /></div>
               {item.rejection_count >= UPCYCLING_THRESHOLD && (
                 <button onClick={() => getUpcycling(item)}
-                  style={{ fontSize: 11, padding: "5px 10px", background: "#E8F5E9", border: "0.5px solid #A5D6A7", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap", color: "#2E7D32", fontWeight: 600 }}>
+                  style={{ fontSize: 11, padding: "5px 12px", background: "#F0FDF4", border: "1px solid #BBF7D0", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap", color: "#15803D", fontWeight: 600 }}>
                   ♻️ Upcycle
                 </button>
               )}
@@ -404,6 +397,15 @@ Respond with exactly: {"upcycles":[{"name":"string","steps":"string","difficulty
           ))}
         </div>
       </div>
+
+      {/* Paper Doll Modal */}
+      {paperDollOutfit && (
+        <PaperDoll
+          items={paperDollOutfit.items || []}
+          outfitName={paperDollOutfit.name}
+          onClose={() => setPaperDollOutfit(null)}
+        />
+      )}
     </div>
   );
 }
